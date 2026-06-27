@@ -1,0 +1,18 @@
+# Secrets — never commit real credentials
+.env
+
+# SQLite database files (data is local/generated; schema + seed are committed)
+database/*.sqlite
+database/*.sqlite-journal
+database/*.db
+
+# Sensitive / generated files from the bdapps demo scripts
+bdappsscrapper/user_number.txt
+bdappsscrapper/OTP+RefNo.txt
+bdappsscrapper/*.log
+bdappsscrapper/LogData.log
+*.log
+
+# OS / editor cruft
+.DS_Store
+Thumbs.db

@@ -1,0 +1,28 @@
+# ===== QuizJeto — Apache / cPanel protection =====
+# Blocks direct web access to secrets, the database, SQL, and log files.
+# (Public PHP pages like index.php, quiz.php, bdappsscrapper/*.php still work.)
+
+# Deny sensitive file types anywhere under this folder
+<FilesMatch "\.(env|sqlite|sqlite-journal|db|sql|log)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Deny hidden dotfiles (.env, .gitignore, etc.)
+<FilesMatch "^\.">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes
