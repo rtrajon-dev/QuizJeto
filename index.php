@@ -21,7 +21,7 @@ foreach ($topicMeta as $icon => $name) {
 // --- Leaderboard: DUMMY players (social proof), shuffled once per day ---
 // Not real users. A daily-stable random selection so it changes each day but
 // stays consistent if a visitor refreshes.
-$prizes = ['৫০০০ MB ডেটা', '৩০০০ MB ডেটা', '২০০০ MB ডেটা', '৫০০ MB ডেটা', '৫০০ MB ডেটা'];
+$prizes = ['২০০০ MB ডেটা', '১৫০০ MB ডেটা', '১০০০ MB ডেটা', '৫০০ MB ডেটা', '৫০০ MB ডেটা'];
 
 $pool = db()->query('SELECT name FROM dummy_players')->fetchAll(PDO::FETCH_COLUMN);
 
@@ -184,7 +184,7 @@ include __DIR__ . '/partials/navbar.php';
     <div class="card bg-gradient-to-br from-warning/20 to-base-200 border border-warning/30">
       <div class="card-body items-center text-center">
         <div class="text-5xl">🥇</div><h3 class="card-title">দৈনিক চ্যাম্পিয়ন</h3>
-        <p class="text-base-content/70">সর্বোচ্চ স্কোরকারী পাবেন ৫০০ MB ডেটা + বোনাস পয়েন্ট</p>
+        <p class="text-base-content/70">সর্বোচ্চ স্কোরকারী পাবেন ২০০০ MB ডেটা + বোনাস পয়েন্ট</p>
       </div>
     </div>
     <div class="card bg-gradient-to-br from-secondary/20 to-base-200 border border-secondary/30">
