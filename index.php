@@ -244,8 +244,8 @@ include __DIR__ . '/partials/navbar.php';
 <script>
   // --- UI-only demo flow (no real backend yet) ---
   // --- Endpoints (relative to docroot) ---
-  const SEND_OTP_URL   = 'bdappsscrapper/send_otp.php';
-  const VERIFY_OTP_URL = 'bdappsscrapper/verify_otp.php';
+  const SEND_OTP_URL   = 'bdapps/send_otp.php';
+  const VERIFY_OTP_URL = 'bdapps/verify_otp.php';
 
   // State carried between the two steps
   let referenceNo = null;
@@ -292,7 +292,7 @@ include __DIR__ . '/partials/navbar.php';
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.referenceNo) {
-        showError(errEl, data.error || data.detail || 'OTP পাঠানো যায়নি। আবার চেষ্টা করুন।');
+        showError(errEl, data.message || data.statusDetail || data.error || 'OTP পাঠানো যায়নি। আবার চেষ্টা করুন।');
         return;
       }
 
@@ -335,7 +335,7 @@ include __DIR__ . '/partials/navbar.php';
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.subscriptionStatus) {
-        showError(errEl, data.error || data.detail || 'ভুল বা মেয়াদোত্তীর্ণ OTP।');
+        showError(errEl, data.statusDetail || data.message || data.error || 'ভুল বা মেয়াদোত্তীর্ণ OTP।');
         return;
       }
 

@@ -7,7 +7,7 @@
  * quiz backend, etc.) should `require` this instead of hardcoding credentials.
  *
  * Usage:
- *   $config = require __DIR__ . '/../config.php';   // from inside bdappsscrapper/
+ *   $config = require __DIR__ . '/../config.php';   // from inside a subfolder
  *   $appId  = $config['bdapps']['app_id'];
  */
 

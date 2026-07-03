@@ -6,11 +6,11 @@ database/*.sqlite
 database/*.sqlite-journal
 database/*.db
 
-# Sensitive / generated files from the bdapps demo scripts
-bdappsscrapper/user_number.txt
-bdappsscrapper/OTP+RefNo.txt
-bdappsscrapper/*.log
-bdappsscrapper/LogData.log
+# Sensitive / generated files written by the bdapps scripts at runtime
+# (OTPs, phone numbers, request/response dumps — never commit these)
+bdapps/*.txt
+bdapps/*.log
+*.txt
 *.log
 
 # OS / editor cruft
