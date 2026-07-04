@@ -67,8 +67,9 @@ if (strlen($digits) !== 11 || $digits[0] !== '0') {
 }
 
 $subscriberId = 'tel:88' . $digits;
-$appId = 'APP_135517';
-$password = '52cfa9d167c9558355fec29f44c69557';
+$config = require __DIR__ . '/../config.php';
+$appId = $config['bdapps']['app_id'];
+$password = $config['bdapps']['password'];
 
 $requestData = array(
     'applicationId' => $appId,

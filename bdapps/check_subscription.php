@@ -33,10 +33,11 @@ if (!preg_match('/^01[3-9][0-9]{8}$/', $digits)) {
 // bdapps subscriberId format
 $subscriberId = 'tel:88' . $digits;
 
+$config = require __DIR__ . '/../config.php';
 $requestData = [
     'version' => '1.0',
-    'applicationId' => 'APP_135517',
-    'password' => '52cfa9d167c9558355fec29f44c69557',
+    'applicationId' => $config['bdapps']['app_id'],
+    'password' => $config['bdapps']['password'],
     'subscriberId' => $subscriberId,
 ];
 

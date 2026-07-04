@@ -97,12 +97,14 @@ include __DIR__ . '/partials/navbar.php';
 
         <!-- Step 2: OTP (hidden until step 1) -->
         <div id="step-otp" class="mt-4 space-y-3 hidden">
-          <p class="text-sm text-base-content/70">আপনার নম্বরে পাঠানো ৪-সংখ্যার কোডটি লিখুন</p>
+          <p class="text-sm text-base-content/70">আপনার নম্বরে পাঠানো ৬-সংখ্যার কোডটি লিখুন</p>
           <div class="flex gap-2 sm:gap-3 justify-center" dir="ltr">
-            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-12 h-14 sm:w-14 text-center text-xl otp-box" />
-            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-12 h-14 sm:w-14 text-center text-xl otp-box" />
-            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-12 h-14 sm:w-14 text-center text-xl otp-box" />
-            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-12 h-14 sm:w-14 text-center text-xl otp-box" />
+            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-11 h-14 sm:w-12 text-center text-xl otp-box" />
+            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-11 h-14 sm:w-12 text-center text-xl otp-box" />
+            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-11 h-14 sm:w-12 text-center text-xl otp-box" />
+            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-11 h-14 sm:w-12 text-center text-xl otp-box" />
+            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-11 h-14 sm:w-12 text-center text-xl otp-box" />
+            <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-11 h-14 sm:w-12 text-center text-xl otp-box" />
           </div>
           <p id="otp-sent-to" class="text-xs text-base-content/50 text-center"></p>
           <p id="err-otp" class="text-error text-sm text-center hidden"></p>
@@ -316,8 +318,8 @@ include __DIR__ . '/partials/navbar.php';
     hideError(errEl);
 
     const otp = Array.from(document.querySelectorAll('.otp-box')).map(b => b.value).join('');
-    if (!/^\d{4}$/.test(otp)) {
-      showError(errEl, '৪-সংখ্যার কোডটি সম্পূর্ণ লিখুন');
+    if (!/^\d{6}$/.test(otp)) {
+      showError(errEl, '৬-সংখ্যার কোডটি সম্পূর্ণ লিখুন');
       return;
     }
     if (!referenceNo) {

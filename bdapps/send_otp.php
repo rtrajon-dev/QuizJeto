@@ -38,11 +38,12 @@ $user_mobile = 'tel:88' . $digits;
 file_put_contents('user_number.txt', $user_mobile . PHP_EOL, FILE_APPEND);
 
 // Request data
+$config = require __DIR__ . '/../config.php';
 $requestData = [
-    'applicationId' => 'APP_135517',
-    'password' => '52cfa9d167c9558355fec29f44c69557',
+    'applicationId' => $config['bdapps']['app_id'],
+    'password' => $config['bdapps']['password'],
     'subscriberId' => $user_mobile,
-    'applicationHash' => 'App Name',
+    'applicationHash' => $config['bdapps']['app_name'],
     'applicationMetaData' => [
         'client' => 'MOBILEAPP',
         'device' => 'Samsung S10',

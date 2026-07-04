@@ -33,9 +33,10 @@ try {
     // Continue even if logging fails
 }
 
+$config = require __DIR__ . '/../config.php';
 $requestData = array(
-    "applicationId" => "APP_135517",
-    "password" => "52cfa9d167c9558355fec29f44c69557",
+    "applicationId" => $config['bdapps']['app_id'],
+    "password" => $config['bdapps']['password'],
     "referenceNo" => $referenceNo,
     "otp" => $user_otp
 );

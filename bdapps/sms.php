@@ -3,9 +3,9 @@
 ini_set('error_log', 'sms-app-error.log');
 require 'sdk_file.php';
 
-
-$appid = "APP_129633";
-$apppassword = "25a5efc8ff2ab3ce7ef7d143d5d3da71";
+$config = require __DIR__ . '/../config.php';
+$appid = $config['bdapps']['app_id'];
+$apppassword = $config['bdapps']['password'];
 $logger = new Logger();
 
 try{
