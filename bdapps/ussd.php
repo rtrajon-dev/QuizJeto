@@ -40,26 +40,7 @@ $ussdOperation 		= 	$receiver->getUssdOperation(); // get the ussd operation
 
 $status = $subscription->getStatus($address);
 
-
-try{
-    $myfile = fopen("MaskNumbers_from_USSD.txt", "a+") or die("Unable to open file!");
-    fwrite($myfile,$address." Date".$date_."\n");
-}
-catch(Exception $e){
-    
-}
-
-try{
-    $myfile = fopen("USSD msg.txt", "a+") or die("Unable to open file!");
-    fwrite($myfile,$content."\n");
-}
-catch(Exception $e){
-    
-}
-
-//$response=$sender->sms('This message is for MT testing, So MT works[Reaz]', $address);
-
- $responseMsg = ($status == "REGISTERED")? "1. unsubscribe" : "Please wait for the confirmation pop-up.";
+$responseMsg = ($status == "REGISTERED")? "1. unsubscribe" : "Please wait for the confirmation pop-up.";
 
 
 if ($ussdOperation  == "mo-init") {

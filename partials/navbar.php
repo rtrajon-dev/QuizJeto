@@ -1,3 +1,10 @@
+<?php
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+$navLoggedIn = !empty($_SESSION['phone']);
+$navDisplay  = $_SESSION['display'] ?? '';
+?>
 <!-- Sticky top navbar -->
 <div class="navbar bg-base-100/80 backdrop-blur sticky top-0 z-50 border-b border-base-content/10 px-4 lg:px-12">
   <div class="navbar-start">
@@ -6,23 +13,21 @@
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
       </div>
       <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-200 rounded-box z-[1] mt-3 w-52 p-2 shadow">
-        <li><a href="#how">যেভাবে খেলবেন</a></li>
-        <li><a href="#topics">বিষয়সমূহ</a></li>
-        <li><a href="#rewards">পুরস্কার</a></li>
-        <li><a href="#leaderboard">লিডারবোর্ড</a></li>
+        <li><a href="/#how">যেভাবে খেলবেন</a></li>
+        <li><a href="/#topics">বিষয়সমূহ</a></li>
+        <li><a href="/#rewards">পুরস্কার</a></li>
       </ul>
     </div>
     <a href="/" class="btn btn-ghost px-2 text-lg sm:text-xl font-bold gap-1.5">
       <span class="text-xl sm:text-2xl">🧠</span>
-      <span style="background:linear-gradient(90deg,hsl(var(--p)),hsl(var(--s)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">QuizJeto</span>
+      <span style="background:linear-gradient(90deg,hsl(var(--p)),hsl(var(--s)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">QuizJeeto</span>
     </a>
   </div>
   <div class="navbar-center hidden lg:flex">
     <ul class="menu menu-horizontal px-1 gap-1 font-medium">
-      <li><a href="#how">যেভাবে খেলবেন</a></li>
-      <li><a href="#topics">বিষয়সমূহ</a></li>
-      <li><a href="#rewards">পুরস্কার</a></li>
-      <li><a href="#leaderboard">লিডারবোর্ড</a></li>
+      <li><a href="/#how">যেভাবে খেলবেন</a></li>
+      <li><a href="/#topics">বিষয়সমূহ</a></li>
+      <li><a href="/#rewards">পুরস্কার</a></li>
     </ul>
   </div>
   <div class="navbar-end gap-2">
@@ -34,7 +39,22 @@
       <!-- moon icon (shows in light mode → tap for dark) -->
       <svg class="swap-off h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.05 8.05 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05z"/></svg>
     </label>
-    <a href="#register" class="btn btn-primary btn-sm md:btn-md"><span class="sm:hidden">খেলুন</span><span class="hidden sm:inline">কুইজ শুরু করুন</span></a>
+    <?php if ($navLoggedIn): ?>
+      <div class="dropdown dropdown-end">
+        <div tabindex="0" role="button" class="btn btn-ghost btn-sm md:btn-md gap-1">
+          <span class="text-lg">👤</span>
+          <span class="hidden sm:inline max-w-[8rem] truncate"><?= htmlspecialchars($navDisplay, ENT_QUOTES, 'UTF-8') ?></span>
+          <svg class="h-4 w-4 fill-current" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>
+        </div>
+        <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-200 rounded-box z-[1] mt-3 w-52 p-2 shadow">
+          <li><a href="/quiz.php">🎮 কুইজ খেলুন</a></li>
+          <li><a href="/account.php">⚙️ আমার অ্যাকাউন্ট</a></li>
+          <li><a href="/logout.php" class="text-error">🚪 লগআউট</a></li>
+        </ul>
+      </div>
+    <?php else: ?>
+      <a href="/#register" class="btn btn-primary btn-sm md:btn-md"><span class="sm:hidden">খেলুন</span><span class="hidden sm:inline">কুইজ শুরু করুন</span></a>
+    <?php endif; ?>
   </div>
 </div>
 

@@ -1,14 +1,5 @@
 <?php
 
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header('Content-Type: application/json; charset=utf-8'); 
-
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-    http_response_code(200);
-    exit();
-}
 header('Content-Type: application/json; charset=utf-8');
 
 $rawMobile = $_POST['user_mobile'] ?? '';
@@ -34,28 +25,20 @@ if (!preg_match('/^01[3-9][0-9]{8}$/', $digits)) {
 // bdapps subscriberId format
 $user_mobile = 'tel:88' . $digits;
 
-// Debug log
-file_put_contents('user_number.txt', $user_mobile . PHP_EOL, FILE_APPEND);
-
 // Request data
 $config = require __DIR__ . '/../config.php';
 $requestData = [
     'applicationId' => $config['bdapps']['app_id'],
     'password' => $config['bdapps']['password'],
     'subscriberId' => $user_mobile,
-    'applicationHash' => $config['bdapps']['app_name'],
+    'applicationHash' => $config['bdapps']['app_hash'],
     'applicationMetaData' => [
-        'client' => 'MOBILEAPP',
-        'device' => 'Samsung S10',
-        'os' => 'android 8',
-        'appCode' => 'https://play.google.com/store/apps/details?id=lk.dialog.megarunlor'
+        'client' => 'WEBAPP',
+        'appCode' => 'https://quizjeto.patawise.com/'
     ]
 ];
 
 $requestJson = json_encode($requestData);
-
-// Log the request for debugging
-file_put_contents('otp_request.txt', date('Y-m-d H:i:s') . " | Request: " . $requestJson . "\n", FILE_APPEND);
 
 $url = 'https://developer.bdapps.com/subscription/otp/request';
 $ch = curl_init();
@@ -84,9 +67,6 @@ if ($responseJson === false) {
 
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 curl_close($ch);
-
-// Log the raw response for debugging
-file_put_contents('otp_response.txt', date('Y-m-d H:i:s') . " | HTTP $httpCode | " . $responseJson . "\n", FILE_APPEND);
 
 // Check if response looks like HTML (error page)
 if (stripos($responseJson, '<html') !== false || stripos($responseJson, '<!DOCTYPE') !== false) {

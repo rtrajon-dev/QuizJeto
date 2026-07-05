@@ -1,5 +1,6 @@
 <?php
-$pageTitle = 'QuizJeto — কুইজ খেলুন, জিতুন';
+session_start();
+$pageTitle = 'QuizJeeto — কুইজ খেলুন, জিতুন';
 
 require_once __DIR__ . '/db.php';
 
@@ -18,33 +19,9 @@ foreach ($topicMeta as $icon => $name) {
   $topics[] = ['icon' => $icon, 'name' => $name, 'q' => bn($n) . 'টি প্রশ্ন'];
 }
 
-// --- Leaderboard: DUMMY players (social proof), shuffled once per day ---
-// Not real users. A daily-stable random selection so it changes each day but
-// stays consistent if a visitor refreshes.
-$prizes = ['২০০০ MB ডেটা', '১৫০০ MB ডেটা', '১০০০ MB ডেটা', '৫০০ MB ডেটা', '৫০০ MB ডেটা'];
-
-$pool = db()->query('SELECT name FROM dummy_players')->fetchAll(PDO::FETCH_COLUMN);
-
-mt_srand((int) date('Ymd'));   // same seed all day → stable; changes tomorrow
-shuffle($pool);
-$picked = array_slice($pool, 0, 5);
-
-// believable, non-increasing scores from 15 downward
-$leaderboard = [];
-$score = 15;
-foreach ($picked as $i => $name) {
-  if ($i > 0) {
-    $score -= mt_rand(0, 1);     // sometimes equal, sometimes one lower
-    $score = max(10, $score);
-  }
-  $leaderboard[] = [
-    'rank'  => $i + 1,
-    'name'  => $name,
-    'score' => bn($score) . '/১৫',
-    'prize' => $prizes[$i] ?? '৫০০ MB ডেটা',
-  ];
-}
-mt_srand();   // restore normal randomness for the rest of the page
+// --- Real totals for the hero stat strip (no fabricated numbers) ---
+$totalQuestions = array_sum($countByTopic);
+$totalTopics    = count($topics);
 
 include __DIR__ . '/partials/head.php';
 include __DIR__ . '/partials/navbar.php';
@@ -56,21 +33,24 @@ include __DIR__ . '/partials/navbar.php';
   <div class="relative max-w-6xl mx-auto px-4 lg:px-8 py-10 sm:py-16 lg:py-24 grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
     <!-- Left: copy -->
     <div class="text-center lg:text-left">
-      <div class="badge badge-accent badge-outline mb-4 gap-1">🔥 প্রতিদিন নতুন কুইজ</div>
+      <div class="flex flex-wrap gap-2 justify-center lg:justify-start mb-4">
+        <div class="badge badge-accent badge-outline gap-1">🔥 প্রতিদিন নতুন কুইজ</div>
+        <div class="badge badge-primary badge-outline gap-1">🌐 ওয়েব অ্যাপ — যেকোনো ব্রাউজারে</div>
+      </div>
       <h1 class="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight">
         জ্ঞান দিয়ে <span style="background:linear-gradient(90deg,hsl(var(--p)),hsl(var(--s)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">জিতুন</span> পুরস্কার
       </h1>
       <p class="py-5 sm:py-6 text-base sm:text-lg text-base-content/70 max-w-lg mx-auto lg:mx-0">
-        ১৫টি প্রশ্ন, প্রতি প্রশ্নে ৩০ সেকেন্ড। সঠিক উত্তর দিন, লিডারবোর্ডে উঠুন এবং
-        জিতে নিন ডেটা ও আকর্ষণীয় পুরস্কার। মাত্র <span class="font-bold text-accent">২.৭৮ টাকা</span>/সেশন।
+        ১৫টি প্রশ্ন, প্রতি প্রশ্নে ৩০ সেকেন্ড। সঠিক উত্তর দিন, সেরা স্কোর গড়ুন এবং
+        জিতে নিন ডেটা ও আকর্ষণীয় পুরস্কার। মাত্র <span class="font-bold text-accent">২.০০ টাকা</span> + (ভ্যাট+এসডি+এসসি)/দিন।
       </p>
       <div class="flex flex-col sm:flex-row gap-3 sm:justify-center lg:justify-start">
         <a href="#register" class="btn btn-primary btn-lg w-full sm:w-auto">এখনই খেলুন</a>
         <a href="#how" class="btn btn-outline btn-lg w-full sm:w-auto">কীভাবে কাজ করে?</a>
       </div>
       <div class="grid grid-cols-3 gap-2 mt-8 text-center text-xs sm:text-sm text-base-content/60">
-        <div><span class="text-xl sm:text-2xl font-bold text-base-content">৫০K+</span><br>খেলোয়াড়</div>
-        <div><span class="text-xl sm:text-2xl font-bold text-base-content">৩০০০+</span><br>প্রশ্ন</div>
+        <div><span class="text-xl sm:text-2xl font-bold text-base-content"><?= bn($totalQuestions) ?></span><br>প্রশ্ন</div>
+        <div><span class="text-xl sm:text-2xl font-bold text-base-content"><?= bn($totalTopics) ?></span><br>বিষয়</div>
         <div><span class="text-xl sm:text-2xl font-bold text-base-content">দৈনিক</span><br>পুরস্কার</div>
       </div>
     </div>
@@ -135,7 +115,8 @@ include __DIR__ . '/partials/navbar.php';
 
         <div class="divider text-xs text-base-content/40">নিরাপদ ও বিশ্বস্ত</div>
         <p class="text-xs text-base-content/40 text-center">
-          সেশন প্রতি ২.৭৮ টাকা (ভ্যাট, সার্ভিস চার্জ ও সম্পূরক শুল্কসহ) আপনার ব্যালেন্স থেকে কাটা হবে।
+          প্রতিদিন ২.০০ টাকা + (ভ্যাট + সম্পূরক শুল্ক + সার্ভিস চার্জ), অটো-রিনিউয়ালসহ আপনার ব্যালেন্স
+          থেকে কাটা হবে। শুধুমাত্র রবি ও এয়ারটেল গ্রাহকদের জন্য।
         </p>
       </div>
     </div>
@@ -200,34 +181,6 @@ include __DIR__ . '/partials/navbar.php';
         <div class="text-5xl">🎁</div><h3 class="card-title">সাপ্তাহিক প্রাইজ</h3>
         <p class="text-base-content/70">সপ্তাহের সেরা খেলোয়াড়দের জন্য আকর্ষণীয় উপহার</p>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============ LEADERBOARD ============ -->
-<section id="leaderboard" class="bg-base-200/50 py-12 sm:py-16 scroll-mt-16">
-  <div class="max-w-3xl mx-auto px-4 lg:px-8">
-    <h2 class="text-2xl sm:text-3xl font-bold text-center mb-2">আজকের লিডারবোর্ড</h2>
-    <p class="text-center text-base-content/60 mb-10">সেরা খেলোয়াড়রা এই মুহূর্তে</p>
-
-    <div class="overflow-x-auto rounded-box border border-base-content/10 bg-base-100">
-      <table class="table">
-        <thead>
-          <tr><th>র‍্যাঙ্ক</th><th>খেলোয়াড়</th><th>স্কোর</th><th class="text-right">পুরস্কার</th></tr>
-        </thead>
-        <tbody>
-          <?php foreach ($leaderboard as $row): ?>
-          <tr class="<?= $row['rank'] <= 3 ? 'font-semibold' : '' ?>">
-            <td>
-              <?php if ($row['rank'] == 1): ?>🥇<?php elseif ($row['rank'] == 2): ?>🥈<?php elseif ($row['rank'] == 3): ?>🥉<?php else: ?><span class="text-base-content/50"><?= bn($row['rank']) ?></span><?php endif; ?>
-            </td>
-            <td><?= htmlspecialchars($row['name'], ENT_QUOTES, 'UTF-8') ?></td>
-            <td><span class="badge badge-primary badge-sm"><?= htmlspecialchars($row['score'], ENT_QUOTES, 'UTF-8') ?></span></td>
-            <td class="text-right text-base-content/70"><?= htmlspecialchars($row['prize'], ENT_QUOTES, 'UTF-8') ?></td>
-          </tr>
-          <?php endforeach; ?>
-        </tbody>
-      </table>
     </div>
   </div>
 </section>

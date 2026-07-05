@@ -1,41 +1,24 @@
-<?php 
+<?php
+/**
+ * Subscription notification listener.
+ *
+ * bdapps POSTs subscribe/unsubscribe notifications here. We parse and
+ * acknowledge them. No subscriber IDs are written to public files (guideline #9).
+ */
 
-ini_set('error_log', 'ussd-app-error.log');
+ini_set('error_log', 'sub-app-error.log');
 require 'sdk_file.php';
 
-      
-      
-date_default_timezone_set("Asia/Dhaka");
-$date_= date("Y-m-d h:i:sa");
+date_default_timezone_set('Asia/Dhaka');
 
-    
-$myfile = fopen("FSubNoti.txt", "a+") or die("Unable to open file!");
- fwrite($myfile,$date_."\n");
-    
-    
+$body     = file_get_contents('php://input');
+$response = json_decode($body);
 
-
-function readSMSNotification() {
-    $body = file_get_contents('php://input');
-       
-    $response = json_decode($body);
-       
-    $timeStamp = $response->timeStamp;
-    $status = $response->status;
-    $applicationId = $response->applicationId;
-    $subscriberId = $response->subscriberId;
-    $frequency = $response->frequency;
-    
-    $myfile = fopen("FuncSubNoti.txt", "a+") or die("Unable to open file!");
-    fwrite($myfile,"TimeStamp:".$timeStamp." |Status:".$status." |App Id:".$applicationId." |SubscriberId".$subscriberId. "\n");
+if (is_object($response)) {
+    // Available fields: timeStamp, status, applicationId, subscriberId, frequency.
+    // (Persist to a protected store here if you need to track subscriptions.)
+    $status = $response->status ?? null;
 }
 
-
-readSMSNotification();
-
-
-
-
-        
-
-?>
+http_response_code(200);
+echo json_encode(['ok' => true]);

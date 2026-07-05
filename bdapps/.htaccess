@@ -1,0 +1,11 @@
+# Block direct web access to any runtime log / dump files.
+# The bdapps scripts must never expose OTPs, phone numbers, or credentials.
+<FilesMatch "\.(txt|log)$">
+    Require all denied
+</FilesMatch>
+
+# Fallback for older Apache (2.2)
+<IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+</IfModule>

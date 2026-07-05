@@ -1,6 +1,6 @@
 <?php
 /**
- * Central configuration loader for QuizJeto.
+ * Central configuration loader for QuizJeeto.
  *
  * Reads quizjeto/.env once and exposes values via the env() helper, then
  * returns a structured config array. Every file (the bdapps scripts, future
@@ -50,7 +50,10 @@ return [
     'bdapps' => [
         'app_id'   => env('BDAPPS_APP_ID', ''),
         'password' => env('BDAPPS_PASSWORD', ''),
-        'app_name' => env('BDAPPS_APP_NAME', 'QuizJeto'),
+        'app_name' => env('BDAPPS_APP_NAME', 'QuizJeeto'),
+        // applicationHash for the OTP request. If unset, falls back to app_name
+        // so nothing breaks; set BDAPPS_APP_HASH to the real hash from bdapps.
+        'app_hash' => env('BDAPPS_APP_HASH') ?: env('BDAPPS_APP_NAME', 'QuizJeeto'),
         'verify_ssl' => filter_var(env('BDAPPS_VERIFY_SSL', 'false'), FILTER_VALIDATE_BOOLEAN),
     ],
 

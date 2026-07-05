@@ -3,10 +3,10 @@
   <aside>
     <div class="text-2xl font-bold gap-2 flex items-center">
       <span>🧠</span>
-      <span style="background:linear-gradient(90deg,hsl(var(--p)),hsl(var(--s)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">QuizJeto</span>
+      <span style="background:linear-gradient(90deg,hsl(var(--p)),hsl(var(--s)));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;">QuizJeeto</span>
     </div>
     <p class="max-w-md">রবি ও এয়ারটেল গ্রাহকদের জন্য জ্ঞানভিত্তিক কুইজ প্রতিযোগিতা।</p>
-    <p class="text-sm">© ২০২৬ QuizJeto • Powered by <span class="font-semibold">Patawise</span></p>
+    <p class="text-sm">© ২০২৬ QuizJeeto • Powered by <span class="font-semibold">Patawise</span></p>
   </aside>
   <nav>
     <div class="grid grid-flow-col gap-4">

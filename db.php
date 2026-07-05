@@ -1,6 +1,6 @@
 <?php
 /**
- * Database helper for QuizJeto.
+ * Database helper for QuizJeeto.
  *
  * Call db() to get a shared PDO connection. On first run with SQLite, the
  * database file is created automatically and seeded from database/schema.sql

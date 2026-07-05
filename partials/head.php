@@ -1,6 +1,6 @@
 <?php
 // Shared <head>. Pass $pageTitle before including.
-$pageTitle = $pageTitle ?? 'QuizJeto — কুইজ খেলুন, জিতুন';
+$pageTitle = $pageTitle ?? 'QuizJeeto — কুইজ খেলুন, জিতুন';
 ?>
 <!DOCTYPE html>
 <html lang="bn" data-theme="night">
@@ -14,7 +14,7 @@ $pageTitle = $pageTitle ?? 'QuizJeto — কুইজ খেলুন, জিত
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="QuizJeto — রবি ও এয়ারটেল গ্রাহকদের জন্য কুইজ গেম। প্রশ্নের উত্তর দিন, লিডারবোর্ডে উঠুন, পুরস্কার জিতুন।" />
+  <meta name="description" content="QuizJeeto — রবি ও এয়ারটেল গ্রাহকদের জন্য কুইজ গেম। প্রশ্নের উত্তর দিন, সেরা স্কোর গড়ুন, পুরস্কার জিতুন।" />
   <title><?= htmlspecialchars($pageTitle) ?></title>
 
   <!-- Bengali font -->

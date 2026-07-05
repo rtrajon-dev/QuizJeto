@@ -7,7 +7,7 @@ if (empty($_SESSION['phone'])) {
     exit;
 }
 
-$pageTitle = 'কুইজ চলছে — QuizJeto';
+$pageTitle = 'কুইজ চলছে — QuizJeeto';
 include __DIR__ . '/partials/head.php';
 include __DIR__ . '/partials/navbar.php';
 ?>
