@@ -45,7 +45,7 @@ include __DIR__ . '/partials/navbar.php';
     <div>
       <h2 class="text-xl font-semibold mb-2">৬. যোগাযোগ</h2>
       <p>যেকোনো প্রশ্নে যোগাযোগ করুন:
-      <a href="mailto:rajontalukder111@gmail.com" class="link link-primary">rajontalukder111@gmail.com</a></p>
+      <a href="mailto:patawise.dev@gmail.com" class="link link-primary">patawise.dev@gmail.com</a></p>
     </div>
   </div>
 </section>

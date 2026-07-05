@@ -15,17 +15,7 @@ include __DIR__ . '/partials/navbar.php';
         <div class="text-3xl">📧</div>
         <div>
           <div class="font-semibold">ইমেইল</div>
-          <a href="mailto:rajontalukder111@gmail.com" class="link link-primary">rajontalukder111@gmail.com</a>
-        </div>
-      </div>
-    </div>
-
-    <div class="card bg-base-200 border border-base-content/10">
-      <div class="card-body flex-row items-center gap-4">
-        <div class="text-3xl">📞</div>
-        <div>
-          <div class="font-semibold">ফোন</div>
-          <a href="tel:+8801641215140" class="link link-primary">01641215140</a>
+          <a href="mailto:patawise.dev@gmail.com" class="link link-primary">patawise.dev@gmail.com</a>
         </div>
       </div>
     </div>

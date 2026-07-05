@@ -42,7 +42,7 @@ include __DIR__ . '/partials/navbar.php';
       </h1>
       <p class="py-5 sm:py-6 text-base sm:text-lg text-base-content/70 max-w-lg mx-auto lg:mx-0">
         ১৫টি প্রশ্ন, প্রতি প্রশ্নে ৩০ সেকেন্ড। সঠিক উত্তর দিন, সেরা স্কোর গড়ুন এবং
-        জিতে নিন ডেটা ও আকর্ষণীয় পুরস্কার। মাত্র <span class="font-bold text-accent">২.০০ টাকা</span> + (ভ্যাট+এসডি+এসসি)/দিন।
+        জিতে নিন ডেটা ও আকর্ষণীয় পুরস্কার।
       </p>
       <div class="flex flex-col sm:flex-row gap-3 sm:justify-center lg:justify-start">
         <a href="#register" class="btn btn-primary btn-lg w-full sm:w-auto">এখনই খেলুন</a>
