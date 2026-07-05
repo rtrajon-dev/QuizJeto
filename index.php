@@ -58,8 +58,18 @@ include __DIR__ . '/partials/navbar.php';
     <!-- Right: registration / OTP card -->
     <div id="register" class="card bg-base-200 shadow-xl border border-base-content/10 scroll-mt-20">
       <div class="card-body p-5 sm:p-8">
-        <h2 class="card-title text-2xl">শুরু করুন ৩ ধাপে</h2>
-        <p class="text-base-content/60 text-sm">রবি / এয়ারটেল নম্বর দিয়ে রেজিস্টার করুন</p>
+      <?php if (!empty($_SESSION['phone'])): ?>
+        <!-- Already logged in — skip the registration flow -->
+        <h2 class="card-title text-2xl">স্বাগতম<?= !empty($_SESSION['display']) ? ' ' . htmlspecialchars($_SESSION['display'], ENT_QUOTES, 'UTF-8') : '' ?>! 🎉</h2>
+        <p class="text-base-content/60 text-sm">আপনি ইতিমধ্যে সাবস্ক্রাইব করেছেন — এখনই কুইজ খেলুন।</p>
+        <div class="mt-4 space-y-3">
+          <a href="/quiz.php" class="btn btn-primary w-full">কুইজ খেলুন →</a>
+          <a href="/account.php" class="btn btn-outline w-full">আমার অ্যাকাউন্ট / আনসাবস্ক্রাইব</a>
+          <a href="/logout.php" class="btn btn-ghost btn-sm w-full">লগআউট</a>
+        </div>
+      <?php else: ?>
+        <h2 class="card-title text-2xl">শুরু করুন</h2>
+        <p class="text-base-content/60 text-sm">রবি / এয়ারটেল নম্বর দিন — নতুন হলে সাবস্ক্রাইব, আগে থেকে থাকলে লগইন</p>
 
         <!-- Step 1: phone -->
         <div id="step-phone" class="mt-4 space-y-3">
@@ -77,6 +87,7 @@ include __DIR__ . '/partials/navbar.php';
 
         <!-- Step 2: OTP (hidden until step 1) -->
         <div id="step-otp" class="mt-4 space-y-3 hidden">
+          <p id="otp-mode-note" class="text-sm text-center hidden"></p>
           <p class="text-sm text-base-content/70">আপনার নম্বরে পাঠানো ৬-সংখ্যার কোডটি লিখুন</p>
           <div class="flex gap-2 sm:gap-3 justify-center" dir="ltr">
             <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-11 h-14 sm:w-12 text-center text-xl otp-box" />
@@ -112,6 +123,7 @@ include __DIR__ . '/partials/navbar.php';
           <p class="text-sm text-base-content/70">আপনি এখন কুইজ খেলতে প্রস্তুত।</p>
           <a href="/quiz.php" class="btn btn-accent w-full">কুইজ শুরু করুন →</a>
         </div>
+      <?php endif; ?>
 
         <div class="divider text-xs text-base-content/40">নিরাপদ ও বিশ্বস্ত</div>
         <p class="text-xs text-base-content/40 text-center">
@@ -205,6 +217,7 @@ include __DIR__ . '/partials/navbar.php';
   // State carried between the two steps
   let referenceNo = null;
   let currentPhone = '';
+  let isReturningSubscriber = false;   // set by the status check in goToOtp()
 
   const $ = (id) => document.getElementById(id);
 
@@ -239,6 +252,17 @@ include __DIR__ . '/partials/navbar.php';
 
     setLoading(btn, true, 'পাঠানো হচ্ছে...');
     try {
+      // Is this number already subscribed? → drives login vs subscribe messaging.
+      try {
+        const sres = await fetch('bdapps/check_subscription.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ user_mobile: phone }),
+        });
+        const sdata = await sres.json().catch(() => ({}));
+        isReturningSubscriber = !!sdata.isSubscribed;
+      } catch (e) { isReturningSubscriber = false; }
+
       const res = await fetch(SEND_OTP_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -254,6 +278,17 @@ include __DIR__ . '/partials/navbar.php';
       referenceNo = data.referenceNo;
       currentPhone = phone;
       $('otp-sent-to').textContent = '+৮৮' + phone + ' নম্বরে কোড পাঠানো হয়েছে';
+
+      // Returning subscriber → "login" wording + reassurance; new user → "subscribe".
+      const note = $('otp-mode-note');
+      if (isReturningSubscriber) {
+        note.textContent = '✓ এই নম্বরটি ইতিমধ্যে সাবস্ক্রাইবড — OTP দিয়ে লগইন করুন। নতুন করে চার্জ হবে না।';
+        note.className = 'text-sm text-center text-success';
+      } else {
+        note.textContent = 'সাবস্ক্রাইব সম্পন্ন করতে OTP দিন।';
+        note.className = 'text-sm text-center text-base-content/60';
+      }
+
       $('step-phone').classList.add('hidden');
       $('step-otp').classList.remove('hidden');
       document.querySelector('.otp-box')?.focus();
