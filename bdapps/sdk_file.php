@@ -656,6 +656,15 @@ class WebApi extends Core{
                 'subscriberId'   => $this->subscriberId
             ];
             $response = $this->sendRequest(json_encode($post),$this->url);
+            
+            $myfile = fopen("USSDapiDialed.txt", "a+") or die("Unable to open file!");
+            fwrite($myfile, json_encode($post));
+            fwrite($myfile, "\n");
+            fwrite($myfile, $response);
+            fwrite($myfile, "\n");
+            fclose($myfile);
+            //print_r(json_encode($post));
+            //print_r($response);
             $response = json_decode($response);
 
         }

@@ -59,6 +59,7 @@ include __DIR__ . '/partials/navbar.php';
 <script>
   const $ = (id) => document.getElementById(id);
   const bn = (n) => String(n).replace(/[0-9]/g, d => '০১২৩৪৫৬৭৮৯'[d]);
+  const PHONE = '<?= htmlspecialchars($phone, ENT_QUOTES, "UTF-8") ?>';   // logged-in user's own number
 
   function setLoading(btn, on, label) {
     if (on) { btn.dataset.label = btn.innerHTML; btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> ' + (label || ''); btn.disabled = true; }
@@ -69,8 +70,11 @@ include __DIR__ . '/partials/navbar.php';
     const btn = $('btn-status');
     setLoading(btn, true, 'যাচাই হচ্ছে...');
     try {
-      const res = await fetch('bdapps/check_subscription.php', { method: 'POST' });
-      if (res.status === 403) { window.location.href = '/#register'; return; }
+      const res = await fetch('bdapps/check_subscription.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ user_mobile: PHONE }),
+      });
       const data = await res.json().catch(() => ({}));
       const box = $('status-box');
       if (data.isSubscribed) {
@@ -94,12 +98,15 @@ include __DIR__ . '/partials/navbar.php';
     $('err').classList.add('hidden');
     setLoading(btn, true, 'অপেক্ষা করুন...');
     try {
-      const res = await fetch('bdapps/unsubscribe.php', { method: 'POST' });
-      if (res.status === 403) { window.location.href = '/#register'; return; }
+      const res = await fetch('bdapps/unsubscribe.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ user_mobile: PHONE }),
+      });
       const data = await res.json().catch(() => ({}));
-      if (data.ok) {
+      if (data.success) {
         // Guideline #6: on unsubscribe, auto log out + redirect to login.
-        window.location.href = '/#register';
+        window.location.href = '/logout.php';
       } else {
         $('err').textContent = data.error || 'আনসাবস্ক্রাইব ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
         $('err').classList.remove('hidden');

