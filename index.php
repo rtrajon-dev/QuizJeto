@@ -82,12 +82,11 @@ include __DIR__ . '/partials/navbar.php';
             <div class="label"><span class="label-text-alt text-base-content/50">শুধু রবি ও এয়ারটেল নম্বর সমর্থিত</span></div>
           </label>
           <p id="err-phone" class="text-error text-sm hidden"></p>
-          <button id="btn-send" onclick="goToOtp()" class="btn btn-primary w-full">OTP পাঠান</button>
+          <button id="btn-send" onclick="goToOtp()" class="btn btn-primary w-full">প্রবেশ করুন</button>
         </div>
 
         <!-- Step 2: OTP (hidden until step 1) -->
         <div id="step-otp" class="mt-4 space-y-3 hidden">
-          <p id="otp-mode-note" class="text-sm text-center hidden"></p>
           <p class="text-sm text-base-content/70">আপনার নম্বরে পাঠানো ৬-সংখ্যার কোডটি লিখুন</p>
           <div class="flex gap-2 sm:gap-3 justify-center" dir="ltr">
             <input type="text" maxlength="1" inputmode="numeric" class="input input-bordered w-11 h-14 sm:w-12 text-center text-xl otp-box" />
@@ -217,7 +216,6 @@ include __DIR__ . '/partials/navbar.php';
   // State carried between the two steps
   let referenceNo = null;
   let currentPhone = '';
-  let isReturningSubscriber = false;   // set by the status check in goToOtp()
 
   const $ = (id) => document.getElementById(id);
 
@@ -250,19 +248,26 @@ include __DIR__ . '/partials/navbar.php';
       return;
     }
 
-    setLoading(btn, true, 'পাঠানো হচ্ছে...');
+    setLoading(btn, true, 'অপেক্ষা করুন...');
     try {
-      // Is this number already subscribed? → drives login vs subscribe messaging.
-      try {
-        const sres = await fetch('bdapps/check_subscription.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({ user_mobile: phone }),
-        });
-        const sdata = await sres.json().catch(() => ({}));
-        isReturningSubscriber = !!sdata.isSubscribed;
-      } catch (e) { isReturningSubscriber = false; }
+      // 1) Already subscribed? Log in directly via server-side status check (no OTP).
+      const lres = await fetch('login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ user_mobile: phone }),
+      });
+      const ldata = await lres.json().catch(() => ({}));
 
+      if (ldata.ok && ldata.subscribed) {
+        window.location.href = '/';   // logged in → home shows the welcome card
+        return;
+      }
+      if (!ldata.ok) {
+        showError(errEl, ldata.error || 'সংযোগ সমস্যা। আবার চেষ্টা করুন।');
+        return;
+      }
+
+      // 2) Not subscribed → subscribe via OTP.
       const res = await fetch(SEND_OTP_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -278,17 +283,6 @@ include __DIR__ . '/partials/navbar.php';
       referenceNo = data.referenceNo;
       currentPhone = phone;
       $('otp-sent-to').textContent = '+৮৮' + phone + ' নম্বরে কোড পাঠানো হয়েছে';
-
-      // Returning subscriber → "login" wording + reassurance; new user → "subscribe".
-      const note = $('otp-mode-note');
-      if (isReturningSubscriber) {
-        note.textContent = '✓ এই নম্বরটি ইতিমধ্যে সাবস্ক্রাইবড — OTP দিয়ে লগইন করুন। নতুন করে চার্জ হবে না।';
-        note.className = 'text-sm text-center text-success';
-      } else {
-        note.textContent = 'সাবস্ক্রাইব সম্পন্ন করতে OTP দিন।';
-        note.className = 'text-sm text-center text-base-content/60';
-      }
-
       $('step-phone').classList.add('hidden');
       $('step-otp').classList.remove('hidden');
       document.querySelector('.otp-box')?.focus();
