@@ -276,6 +276,18 @@ include __DIR__ . '/partials/navbar.php';
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok || !data.referenceNo) {
+        // Fallback: bdapps says the number is already subscribed (E1351
+        // "user already registered") → treat as login, not an error.
+        const detail = (data.statusDetail || data.message || '').toLowerCase();
+        if (data.statusCode === 'E1351' || detail.includes('already registered')) {
+          await fetch('register_user.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({ user_mobile: phone }),
+          });
+          window.location.href = '/';   // logged in → home welcome card
+          return;
+        }
         showError(errEl, data.message || data.statusDetail || data.error || 'OTP পাঠানো যায়নি। আবার চেষ্টা করুন।');
         return;
       }
