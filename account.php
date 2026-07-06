@@ -35,7 +35,7 @@ include __DIR__ . '/partials/navbar.php';
   <div class="card bg-base-200 border border-base-content/10 shadow-sm mb-6">
     <div class="card-body">
       <h2 class="card-title text-lg">সাবস্ক্রিপশন স্ট্যাটাস</h2>
-      <p class="text-sm text-base-content/60">প্রতিদিন ২.০০ টাকা + (ভ্যাট + সম্পূরক শুল্ক + সার্ভিস চার্জ), অটো-রিনিউয়াল। শুধুমাত্র রবি ও এয়ারটেল গ্রাহকদের জন্য।</p>
+      <p class="text-sm text-base-content/60">প্রতিদিন ২.৭৮ টাকা + (ভ্যাট + সম্পূরক শুল্ক + সার্ভিস চার্জ), অটো-রিনিউয়াল। শুধুমাত্র রবি ও এয়ারটেল গ্রাহকদের জন্য।</p>
       <div id="status-box" class="mt-2 text-sm">
         <span class="badge badge-ghost">যাচাই করা হয়নি</span>
       </div>
