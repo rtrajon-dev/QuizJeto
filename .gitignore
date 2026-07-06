@@ -6,8 +6,9 @@ database/*.sqlite
 database/*.sqlite-journal
 database/*.db
 
-# Session files (server-generated, never commit)
-sessions/
+# Session files (server-generated, never commit) — but keep directory infrastructure
+sessions/sess_*
+sessions/php_sess_*
 
 # Sensitive / generated files written by the bdapps scripts at runtime
 # (OTPs, phone numbers, request/response dumps — never commit these)

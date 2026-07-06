@@ -5,11 +5,11 @@ name: Build cPanel ZIP on release
 on:
   push:
     tags:
-      - 'v*'
-  workflow_dispatch:        # also allow manual runs from the Actions tab
+      - "v*"
+  workflow_dispatch: # also allow manual runs from the Actions tab
 
 permissions:
-  contents: write           # required to create a Release + upload the asset
+  contents: write # required to create a Release + upload the asset
 
 jobs:
   release-zip:
@@ -23,16 +23,20 @@ jobs:
           VERSION="${GITHUB_REF_NAME:-manual}"
           ZIP="$RUNNER_TEMP/quizjeto-${VERSION}.zip"
 
+          # Create sessions directory if missing (for deployment)
+          mkdir -p sessions
+
           # Zip the project CONTENTS (so it extracts straight into public_html).
-          # Includes .htaccess + database/.htaccess (dotfiles).
-          # Excludes VCS/CI, secrets, and local-only data.
+          # Includes .htaccess + database/.htaccess + sessions/.htaccess (dotfiles).
+          # Excludes VCS/CI, secrets, and runtime session files.
           zip -r "$ZIP" . \
             -x '.git/*' \
             -x '.github/*' \
             -x '.env' \
             -x '*.sqlite' '*.sqlite-journal' '*.db' \
+            -x 'sessions/sess_*' 'sessions/php_sess_*' \
             -x '*.log' \
-            -x '*.DS_Store'
+            -x '.DS_Store'
 
           echo "ZIP_PATH=$ZIP" >> "$GITHUB_ENV"
           echo "Built:"
