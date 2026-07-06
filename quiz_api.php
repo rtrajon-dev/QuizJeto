@@ -13,6 +13,14 @@
  */
 
 header('Content-type: application/json');
+
+// Ensure sessions persist on shared hosting (cPanel)
+if (php_sapi_name() !== 'cli') {
+    ini_set('session.save_path', __DIR__ . '/sessions');
+    if (!is_dir(__DIR__ . '/sessions')) {
+        @mkdir(__DIR__ . '/sessions', 0755, true);
+    }
+}
 session_start();
 require_once __DIR__ . '/db.php';
 

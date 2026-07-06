@@ -1,4 +1,11 @@
 <?php
+// Ensure sessions persist on shared hosting (cPanel)
+if (php_sapi_name() !== 'cli') {
+    ini_set('session.save_path', __DIR__ . '/sessions');
+    if (!is_dir(__DIR__ . '/sessions')) {
+        @mkdir(__DIR__ . '/sessions', 0755, true);
+    }
+}
 session_start();
 $pageTitle = 'QuizJeeto — কুইজ খেলুন, জিতুন';
 

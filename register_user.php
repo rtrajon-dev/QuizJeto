@@ -12,9 +12,17 @@
  */
 
 header('Content-type: application/json');
+
+// Ensure sessions persist on shared hosting (cPanel)
+if (php_sapi_name() !== 'cli') {
+    ini_set('session.save_path', __DIR__ . '/sessions');
+    if (!is_dir(__DIR__ . '/sessions')) {
+        @mkdir(__DIR__ . '/sessions', 0755, true);
+    }
+}
 session_start();
 
-$phone = isset($_POST['user_mobile'])  ? trim($_POST['user_mobile'])  : '';
+$phone = isset($_POST['user_mobile'])  ? trim($_POST['user_mobile'])  : ''
 $name  = isset($_POST['display_name']) ? trim($_POST['display_name']) : '';
 
 if (!preg_match('/^01[3-9]\d{8}$/', $phone)) {

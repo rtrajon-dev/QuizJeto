@@ -6,6 +6,9 @@ database/*.sqlite
 database/*.sqlite-journal
 database/*.db
 
+# Session files (server-generated, never commit)
+sessions/
+
 # Sensitive / generated files written by the bdapps scripts at runtime
 # (OTPs, phone numbers, request/response dumps — never commit these)
 bdapps/*.txt
