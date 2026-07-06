@@ -22,7 +22,7 @@ if (php_sapi_name() !== 'cli') {
 }
 session_start();
 
-$phone = isset($_POST['user_mobile'])  ? trim($_POST['user_mobile'])  : ''
+$phone = isset($_POST['user_mobile'])  ? trim($_POST['user_mobile'])  : '';
 $name  = isset($_POST['display_name']) ? trim($_POST['display_name']) : '';
 
 if (!preg_match('/^01[3-9]\d{8}$/', $phone)) {
