@@ -58,17 +58,10 @@ include __DIR__ . '/partials/navbar.php';
       <div class="w-full mt-2">
         <div class="divider text-xs text-base-content/40">বন্ধুদের সাথে শেয়ার করো</div>
         <p class="text-sm text-base-content/70 mb-3">তোমার স্কোর বন্ধুদের সাথে শেয়ার করো — তাদেরও খেলতে চ্যালেঞ্জ জানাও! 🎯</p>
-        <div class="flex flex-col sm:flex-row gap-2">
-          <button onclick="shareScore()" class="btn btn-primary gap-2 flex-1">
-            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
-            শেয়ার করো
-          </button>
-          <button onclick="shareWhatsApp()" class="btn btn-success gap-2 flex-1">
-            <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            হোয়াটসঅ্যাপ
-          </button>
-          <button id="btn-copy" onclick="copyLink()" class="btn btn-outline gap-2">🔗 লিংক কপি</button>
-        </div>
+        <button onclick="shareScore()" class="btn btn-primary gap-2 w-full">
+          <svg viewBox="0 0 24 24" class="h-5 w-5 fill-current"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92-1.31-2.92-2.92-2.92z"/></svg>
+          শেয়ার করো
+        </button>
       </div>
 
       <div class="flex flex-col sm:flex-row gap-3 mt-4 w-full sm:w-auto">
@@ -195,32 +188,20 @@ include __DIR__ . '/partials/navbar.php';
          + SITE_URL;
   }
 
-  // Native share sheet (WhatsApp, Messenger, SMS…). Falls back to WhatsApp on desktop.
+  // Native share sheet (WhatsApp, Messenger, SMS…). On desktop (no share sheet),
+  // fall back to copying the message so it can be pasted anywhere.
   async function shareScore() {
     if (navigator.share) {
       try {
         await navigator.share({ title: 'QuizJeeto', text: shareMessage() });
       } catch (e) { /* user dismissed the share sheet — ignore */ }
     } else {
-      shareWhatsApp();
-    }
-  }
-
-  // Open WhatsApp directly with the pre-filled message.
-  function shareWhatsApp() {
-    window.open('https://wa.me/?text=' + encodeURIComponent(shareMessage()), '_blank');
-  }
-
-  // Copy just the site link, with brief button feedback.
-  async function copyLink() {
-    const btn = $('btn-copy');
-    try {
-      await navigator.clipboard.writeText(SITE_URL);
-      const label = btn.innerHTML;
-      btn.innerHTML = '✅ কপি হয়েছে';
-      setTimeout(() => { btn.innerHTML = label; }, 1500);
-    } catch (e) {
-      prompt('লিংক কপি করো:', SITE_URL);
+      try {
+        await navigator.clipboard.writeText(shareMessage());
+        alert('শেয়ার বার্তা কপি হয়েছে — বন্ধুদের পাঠিয়ে দাও!');
+      } catch (e) {
+        prompt('কপি করো:', shareMessage());
+      }
     }
   }
 
