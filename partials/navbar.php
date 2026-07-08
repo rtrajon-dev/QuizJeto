@@ -16,6 +16,7 @@ $navPhone    = $_SESSION['phone'] ?? '';
       <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-200 rounded-box z-[1] mt-3 w-52 p-2 shadow">
         <li><a href="/#how">যেভাবে খেলবেন</a></li>
         <li><a href="/#topics">বিষয়সমূহ</a></li>
+        <li><a href="/#leaderboard">লিডারবোর্ড</a></li>
         <li><a href="/#rewards">পুরস্কার</a></li>
       </ul>
     </div>
@@ -28,6 +29,7 @@ $navPhone    = $_SESSION['phone'] ?? '';
     <ul class="menu menu-horizontal px-1 gap-1 font-medium">
       <li><a href="/#how">যেভাবে খেলবেন</a></li>
       <li><a href="/#topics">বিষয়সমূহ</a></li>
+      <li><a href="/#leaderboard">লিডারবোর্ড</a></li>
       <li><a href="/#rewards">পুরস্কার</a></li>
     </ul>
   </div>

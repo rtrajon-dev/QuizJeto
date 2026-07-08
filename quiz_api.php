@@ -135,8 +135,25 @@ if ($action === 'answer') {
 }
 
 if ($action === 'result') {
-    $score = $_SESSION['quiz']['score'] ?? 0;
-    $total = $_SESSION['quiz']['total'] ?? QUIZ_TOTAL;
+    $quiz  = $_SESSION['quiz'] ?? null;
+    $score = $quiz['score'] ?? 0;
+    $total = $quiz['total'] ?? QUIZ_TOTAL;
+
+    // Record the finished game for the leaderboard. Only a completed game is
+    // persisted, and unsetting the state below means a repeat 'result' call
+    // cannot double-count. A logging failure must never break the result screen.
+    if ($quiz && !empty($quiz['done'])) {
+        try {
+            $uid = upsert_user($pdo, $_SESSION['phone'], $_SESSION['display'] ?? '');
+            if ($uid) {
+                $ins = $pdo->prepare('INSERT INTO quiz_results (user_id, score, total) VALUES (?, ?, ?)');
+                $ins->execute([$uid, (int) $score, (int) $total]);
+            }
+        } catch (Throwable $e) {
+            // swallow — the player's score screen should still render
+        }
+    }
+
     unset($_SESSION['quiz']);
     echo json_encode(['score' => $score, 'total' => $total]);
     exit;

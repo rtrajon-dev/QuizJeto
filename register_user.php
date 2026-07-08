@@ -13,6 +13,8 @@
 
 header('Content-type: application/json');
 
+require_once __DIR__ . '/db.php';
+
 // Ensure sessions persist on shared hosting (cPanel)
 if (php_sapi_name() !== 'cli') {
     ini_set('session.save_path', __DIR__ . '/sessions');
@@ -38,9 +40,19 @@ $display = $name !== ''
     ? $name
     : substr($phone, 0, 3) . '•••' . substr($phone, -3);
 
-// session only — no DB
 $_SESSION['phone']        = $phone;
 $_SESSION['display_name'] = $name;     // raw (may be empty)
 $_SESSION['display']      = $display;  // what to greet/show
+
+// Record the player (hashed phone + masked form) so they can appear on the
+// leaderboard. Never blocks registration if the DB write fails.
+try {
+    $uid = upsert_user(db(), $phone, $name);
+    if ($uid) {
+        $_SESSION['user_id'] = $uid;
+    }
+} catch (Throwable $e) {
+    // ignore — session login still succeeds
+}
 
 echo json_encode(['ok' => true, 'display_name' => $display]);

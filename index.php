@@ -30,6 +30,37 @@ foreach ($topicMeta as $icon => $name) {
 $totalQuestions = array_sum($countByTopic);
 $totalTopics    = count($topics);
 
+// --- Leaderboard: real players, best score first. Show today's board; if nobody
+//     has played today yet, fall back to the last 7 days so it isn't empty. ---
+$prizes = ['২০০০ MB ডেটা', '১৫০০ MB ডেটা', '১০০০ MB ডেটা', '৫০০ MB ডেটা', '৫০০ MB ডেটা'];
+
+/**
+ * Top-5 players by CUMULATIVE points within a time window — every game a player
+ * finishes adds to their total, so playing more (and well) climbs the board.
+ * $whereClause is a fixed, developer-supplied SQL fragment (never user input).
+ * Both the stored played_at and the boundary use SQLite localtime, so no
+ * PHP/DB timezone drift.
+ */
+function leaderboard_rows(PDO $pdo, string $whereClause): array {
+    return $pdo->query(
+        "SELECT u.display_name, u.phone_masked,
+                SUM(r.score) AS points, SUM(r.total) AS total
+         FROM quiz_results r
+         JOIN users u ON u.id = r.user_id
+         WHERE $whereClause
+         GROUP BY u.id
+         ORDER BY points DESC, MIN(r.played_at) ASC
+         LIMIT 5"
+    )->fetchAll();
+}
+
+$lbRows   = leaderboard_rows(db(), "date(r.played_at) = date('now','localtime')");
+$lbWindow = 'today';
+if (!$lbRows) {
+    $lbRows   = leaderboard_rows(db(), "date(r.played_at) >= date('now','localtime','-6 days')");
+    $lbWindow = 'week';
+}
+
 include __DIR__ . '/partials/head.php';
 include __DIR__ . '/partials/navbar.php';
 ?>
@@ -200,6 +231,47 @@ include __DIR__ . '/partials/navbar.php';
         <p class="text-base-content/70">সপ্তাহের সেরা খেলোয়াড়দের জন্য আকর্ষণীয় উপহার</p>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ============ LEADERBOARD ============ -->
+<section id="leaderboard" class="bg-base-200/50 py-12 sm:py-16 scroll-mt-16">
+  <div class="max-w-3xl mx-auto px-4 lg:px-8">
+    <h2 class="text-2xl sm:text-3xl font-bold text-center mb-2">
+      <?= $lbWindow === 'today' ? 'আজকের লিডারবোর্ড' : 'এই সপ্তাহের লিডারবোর্ড' ?>
+    </h2>
+    <p class="text-center text-base-content/60 mb-10">
+      <?= $lbWindow === 'today' ? 'সেরা খেলোয়াড়রা এই মুহূর্তে' : 'গত ৭ দিনের সেরা খেলোয়াড়রা' ?>
+    </p>
+
+    <?php if (!$lbRows): ?>
+      <div class="text-center py-10 rounded-box border border-dashed border-base-content/20 bg-base-100">
+        <div class="text-5xl mb-3">🏁</div>
+        <p class="font-semibold">এখনও কেউ খেলেনি!</p>
+        <p class="text-base-content/60 text-sm mt-1">প্রথম খেলোয়াড় হয়ে লিডারবোর্ডের শীর্ষে ওঠো।</p>
+        <a href="#register" class="btn btn-primary btn-sm mt-4">এখনই খেলুন</a>
+      </div>
+    <?php else: ?>
+    <div class="overflow-x-auto rounded-box border border-base-content/10 bg-base-100">
+      <table class="table">
+        <thead>
+          <tr><th>র‍্যাঙ্ক</th><th>খেলোয়াড়</th><th>স্কোর</th><th class="text-right">পুরস্কার</th></tr>
+        </thead>
+        <tbody>
+          <?php foreach ($lbRows as $i => $row): $rank = $i + 1; ?>
+          <tr class="<?= $rank <= 3 ? 'font-semibold' : '' ?>">
+            <td>
+              <?php if ($rank == 1): ?>🥇<?php elseif ($rank == 2): ?>🥈<?php elseif ($rank == 3): ?>🥉<?php else: ?><span class="text-base-content/50"><?= bn($rank) ?></span><?php endif; ?>
+            </td>
+            <td><?= htmlspecialchars($row['display_name'] !== null && $row['display_name'] !== '' ? $row['display_name'] : $row['phone_masked'], ENT_QUOTES, 'UTF-8') ?></td>
+            <td><span class="badge badge-primary badge-sm"><?= bn($row['points']) . '/' . bn($row['total']) ?></span></td>
+            <td class="text-right text-base-content/70"><?= htmlspecialchars($prizes[$i] ?? '৫০০ MB ডেটা', ENT_QUOTES, 'UTF-8') ?></td>
+          </tr>
+          <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+    <?php endif; ?>
   </div>
 </section>
 
