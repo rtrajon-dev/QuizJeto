@@ -67,12 +67,10 @@ return [
         'ussd'        => env('BDAPPS_USSD_URL', ''),
     ],
 
+    // MySQL connection (cPanel). Import database/quizjeto.sql once, then set these
+    // in .env. On cPanel the host is almost always 'localhost'.
     'db' => [
-        'connection'  => env('DB_CONNECTION', 'sqlite'),
-        // SQLite: path is resolved relative to this config.php's folder
-        'sqlite_path' => __DIR__ . '/' . ltrim(env('DB_SQLITE_PATH', 'database/quizjeto.sqlite'), '/'),
-        // MySQL (used later when DB_CONNECTION=mysql)
-        'host' => env('DB_HOST', '127.0.0.1'),
+        'host' => env('DB_HOST', 'localhost'),
         'name' => env('DB_NAME', 'quizjeto'),
         'user' => env('DB_USER', 'root'),
         'pass' => env('DB_PASS', ''),

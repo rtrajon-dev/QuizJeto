@@ -1,14 +1,11 @@
 <?php
 /**
- * Store the player's display name in their SESSION only (never in the database).
- * Called after OTP verification. If the session later expires, they simply
- * enter the name again next time.
+ * Set up the player's session after OTP verification and record them for the
+ * leaderboard (hashed phone + masked form via upsert_user — the raw number is
+ * never stored). Number verification/subscription is handled by bdapps.
  *
  * Input  (POST): user_mobile (required), display_name (optional)
  * Output (JSON): { "ok": true, "display_name": "<name or masked number>" }
- *
- * NOTE: number verification/subscription is handled by bdapps; nothing about
- * the real user is persisted in SQLite.
  */
 
 header('Content-type: application/json');

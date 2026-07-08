@@ -11,23 +11,24 @@ $pageTitle = 'QuizJeeto — কুইজ খেলুন, জিতুন';
 
 require_once __DIR__ . '/db.php';
 
-// --- Topics: count real questions per topic from the DB ---
-$topicMeta = [
-  '⚽' => 'ফিফা বিশ্বকাপ ২০২৬', '🏏' => 'বাংলাদেশ ক্রিকেট', '🇧🇩' => 'বাংলাদেশের ইতিহাস',
-  '🔬' => 'সাধারণ বিজ্ঞান', '🌍' => 'বিশ্ব ভূগোল', '💡' => 'সাধারণ জ্ঞান',
-  '🎬' => 'বিনোদন', '🏆' => 'খেলাধুলা',
-];
-$counts = db()->query('SELECT topic, COUNT(*) c FROM questions GROUP BY topic')->fetchAll();
-$countByTopic = array_column($counts, 'c', 'topic');
+// --- Categories + live question counts, straight from the DB. Add a category or
+//     questions by INSERTing rows (see database/quizjeto.sql) — no code change. ---
+$cats = db()->query(
+  'SELECT c.icon, c.name, COUNT(q.id) AS c
+   FROM categories c
+   LEFT JOIN questions q ON q.category_id = c.id AND q.is_active = 1
+   WHERE c.is_active = 1
+   GROUP BY c.id
+   ORDER BY c.sort_order, c.id'
+)->fetchAll();
 
 $topics = [];
-foreach ($topicMeta as $icon => $name) {
-  $n = $countByTopic[$name] ?? 0;
-  $topics[] = ['icon' => $icon, 'name' => $name, 'q' => bn($n) . 'টি প্রশ্ন'];
+foreach ($cats as $cat) {
+  $topics[] = ['icon' => $cat['icon'], 'name' => $cat['name'], 'q' => bn($cat['c']) . 'টি প্রশ্ন'];
 }
 
 // --- Real totals for the hero stat strip (no fabricated numbers) ---
-$totalQuestions = array_sum($countByTopic);
+$totalQuestions = array_sum(array_column($cats, 'c'));
 $totalTopics    = count($topics);
 
 // --- Leaderboard: real players, best score first. Show today's board; if nobody
@@ -38,8 +39,6 @@ $prizes = ['২০০০ MB ডেটা', '১৫০০ MB ডেটা', '১�
  * Top-5 players by CUMULATIVE points within a time window — every game a player
  * finishes adds to their total, so playing more (and well) climbs the board.
  * $whereClause is a fixed, developer-supplied SQL fragment (never user input).
- * Both the stored played_at and the boundary use SQLite localtime, so no
- * PHP/DB timezone drift.
  */
 function leaderboard_rows(PDO $pdo, string $whereClause): array {
     return $pdo->query(
@@ -54,10 +53,11 @@ function leaderboard_rows(PDO $pdo, string $whereClause): array {
     )->fetchAll();
 }
 
-$lbRows   = leaderboard_rows(db(), "date(r.played_at) = date('now','localtime')");
+// Show today's board; if nobody has played yet today, fall back to the last 7 days.
+$lbRows   = leaderboard_rows(db(), 'DATE(r.played_at) = CURDATE()');
 $lbWindow = 'today';
 if (!$lbRows) {
-    $lbRows   = leaderboard_rows(db(), "date(r.played_at) >= date('now','localtime','-6 days')");
+    $lbRows   = leaderboard_rows(db(), 'r.played_at >= CURDATE() - INTERVAL 6 DAY');
     $lbWindow = 'week';
 }
 

@@ -1,10 +1,10 @@
 <?php
 /**
- * Database helper for QuizJeeto.
+ * Database helper for QuizJeeto (MySQL).
  *
- * Call db() to get a shared PDO connection. On first run with SQLite, the
- * database file is created automatically and seeded from database/schema.sql
- * + database/seed.sql — so there is nothing to set up manually.
+ * Import database/quizjeto.sql into your cPanel MySQL database once (it creates
+ * every table and loads the question bank). This file just opens a shared PDO
+ * connection using the DB_* values from .env.
  *
  * Usage:
  *   require_once __DIR__ . '/db.php';
@@ -21,57 +21,10 @@ function db()
     $config = require __DIR__ . '/config.php';
     $db = $config['db'];
 
-    if ($db['connection'] === 'sqlite') {
-        $path = $db['sqlite_path'];
-        $dir  = dirname($path);
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-
-        $needsInit = !file_exists($path) || filesize($path) === 0;
-
-        $pdo = new PDO('sqlite:' . $path);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $pdo->exec('PRAGMA foreign_keys = ON;');
-
-        if ($needsInit) {
-            $schema = file_get_contents(__DIR__ . '/database/schema.sql');
-            $seed   = file_get_contents(__DIR__ . '/database/seed.sql');
-            $pdo->exec($schema);
-            if ($seed !== false && trim($seed) !== '') {
-                $pdo->exec($seed);
-            }
-        }
-
-        // Lightweight migration: make sure the leaderboard tables exist even on
-        // databases that were created before they were added. All statements are
-        // idempotent (IF NOT EXISTS), so this is a cheap no-op once applied.
-        $pdo->exec(
-            'CREATE TABLE IF NOT EXISTS users (
-                id           INTEGER PRIMARY KEY AUTOINCREMENT,
-                phone_hash   TEXT NOT NULL UNIQUE,
-                phone_masked TEXT NOT NULL,
-                display_name TEXT,
-                created_at   TEXT NOT NULL DEFAULT (datetime(\'now\'))
-            );
-            CREATE TABLE IF NOT EXISTS quiz_results (
-                id        INTEGER PRIMARY KEY AUTOINCREMENT,
-                user_id   INTEGER NOT NULL REFERENCES users(id),
-                score     INTEGER NOT NULL,
-                total     INTEGER NOT NULL,
-                played_at TEXT NOT NULL DEFAULT (datetime(\'now\',\'localtime\'))
-            );
-            CREATE INDEX IF NOT EXISTS idx_results_played ON quiz_results(played_at);
-            CREATE INDEX IF NOT EXISTS idx_results_user   ON quiz_results(user_id);'
-        );
-    } else {
-        // MySQL (production)
-        $dsn = "mysql:host={$db['host']};dbname={$db['name']};charset=utf8mb4";
-        $pdo = new PDO($dsn, $db['user'], $db['pass']);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-    }
+    $dsn = "mysql:host={$db['host']};dbname={$db['name']};charset=utf8mb4";
+    $pdo = new PDO($dsn, $db['user'], $db['pass']);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
     return $pdo;
 }

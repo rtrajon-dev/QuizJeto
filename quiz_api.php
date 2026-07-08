@@ -2,7 +2,7 @@
 /**
  * Quiz game engine (server-authoritative).
  *
- * Game state lives in $_SESSION only; questions/answers come from SQLite.
+ * Game state lives in $_SESSION only; questions/answers come from MySQL.
  * The browser NEVER receives the correct option until after it has answered,
  * and the score is computed here — so it cannot be tampered with.
  *
@@ -40,7 +40,7 @@ $action = $_GET['action'] ?? '';
 /** Pick QUIZ_TOTAL random question ids and reset session game state. */
 function start_game(PDO $pdo): void
 {
-    $ids = $pdo->query('SELECT id FROM questions ORDER BY RANDOM() LIMIT ' . QUIZ_TOTAL)
+    $ids = $pdo->query('SELECT id FROM questions WHERE is_active = 1 ORDER BY RAND() LIMIT ' . QUIZ_TOTAL)
                ->fetchAll(PDO::FETCH_COLUMN);
     $_SESSION['quiz'] = [
         'qids'    => $ids,
@@ -60,7 +60,9 @@ function current_question(PDO $pdo): ?array
         return null;
     }
     $stmt = $pdo->prepare(
-        'SELECT topic, question, option_a, option_b, option_c, option_d FROM questions WHERE id = ?'
+        'SELECT c.name AS topic, q.question, q.option_a, q.option_b, q.option_c, q.option_d
+         FROM questions q JOIN categories c ON c.id = q.category_id
+         WHERE q.id = ?'
     );
     $stmt->execute([$q['qids'][$q['index']]]);
     $r = $stmt->fetch();
