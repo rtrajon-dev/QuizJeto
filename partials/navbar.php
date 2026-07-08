@@ -43,6 +43,8 @@ $navPhone    = $_SESSION['phone'] ?? '';
       <svg class="swap-off h-5 w-5 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8.05 8.05 0 0 1-3.37.73 8.15 8.15 0 0 1-8.14-8.1 8.59 8.59 0 0 1 .25-2A1 1 0 0 0 8 2.36a10.14 10.14 0 1 0 14 11.69 1 1 0 0 0-.36-1.05z"/></svg>
     </label>
     <?php if ($navLoggedIn): ?>
+      <!-- Direct unsubscribe button (always visible in the header) -->
+      <button type="button" onclick="navUnsubscribe(this)" class="btn btn-ghost btn-sm md:btn-md text-error">আনসাবস্ক্রাইব</button>
       <div class="dropdown dropdown-end">
         <div tabindex="0" role="button" class="btn btn-ghost btn-sm md:btn-md gap-1">
           <span class="text-lg">👤</span>
@@ -52,7 +54,6 @@ $navPhone    = $_SESSION['phone'] ?? '';
         <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-200 rounded-box z-[1] mt-3 w-52 p-2 shadow">
           <li><a href="/quiz.php">🎮 কুইজ খেলুন</a></li>
           <li><a href="/account.php">⚙️ আমার অ্যাকাউন্ট</a></li>
-          <li><button type="button" onclick="navUnsubscribe(this)" class="text-error">🔕 আনসাবস্ক্রাইব</button></li>
           <li><a href="/logout.php" class="text-error">🚪 লগআউট</a></li>
         </ul>
       </div>
