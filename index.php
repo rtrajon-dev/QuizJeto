@@ -69,10 +69,8 @@ include __DIR__ . '/partials/navbar.php';
         <!-- Already logged in — skip the registration flow -->
         <h2 class="card-title text-2xl">স্বাগতম<?= !empty($_SESSION['display']) ? ' ' . htmlspecialchars($_SESSION['display'], ENT_QUOTES, 'UTF-8') : '' ?>! 🎉</h2>
         <p class="text-base-content/60 text-sm">আপনি ইতিমধ্যে সাবস্ক্রাইব করেছেন — এখনই কুইজ খেলুন।</p>
-        <p id="err-unsub" class="text-error text-sm hidden"></p>
         <div class="mt-4 space-y-3">
           <a href="/quiz.php" class="btn btn-primary w-full">কুইজ খেলুন →</a>
-          <button onclick="unsubscribeDirectly()" class="btn btn-outline w-full">আনসাবস্ক্রাইব</button>
           <a href="/account.php" class="btn btn-ghost btn-sm w-full">আমার অ্যাকাউন্ট</a>
           <a href="/logout.php" class="btn btn-ghost btn-sm w-full">লগআউট</a>
         </div>
@@ -394,37 +392,6 @@ include __DIR__ . '/partials/navbar.php';
     $('step-otp').classList.add('hidden');
     $('step-phone').classList.remove('hidden');
     $('phone').focus();
-  }
-
-  // Direct unsubscribe from home page
-  async function unsubscribeDirectly() {
-    if (!confirm('আপনি কি নিশ্চিতভাবে আনসাবস্ক্রাইব করতে চান? এটি করলে আপনি লগআউট হয়ে যাবেন।')) return;
-    const btn = event.target;
-    const errEl = $('err-unsub');
-    errEl.classList.add('hidden');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="loading loading-spinner loading-sm"></span> অপেক্ষা করুন...';
-    try {
-      const res = await fetch('bdapps/unsubscribe.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ user_mobile: '<?= htmlspecialchars($_SESSION['phone'] ?? '', ENT_QUOTES, "UTF-8") ?>' }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (data.success || data.status === 'unsubscribed') {
-        window.location.href = '/logout.php';
-      } else {
-        errEl.textContent = data.error || data.message || 'আনসাবস্ক্রাইব করা যায়নি। আবার চেষ্টা করুন।';
-        errEl.classList.remove('hidden');
-        btn.disabled = false;
-        btn.innerHTML = 'আনসাবস্ক্রাইব';
-      }
-    } catch (e) {
-      errEl.textContent = 'নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।';
-      errEl.classList.remove('hidden');
-      btn.disabled = false;
-      btn.innerHTML = 'আনসাবস্ক্রাইব';
-    }
   }
 
   // OTP boxes: auto-advance, backspace-to-previous, submit on Enter

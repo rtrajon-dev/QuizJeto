@@ -56,7 +56,6 @@ include __DIR__ . '/partials/navbar.php';
   <div class="card bg-base-200 border border-base-content/10 shadow-sm">
     <div class="card-body gap-3">
       <a href="/quiz.php" class="btn btn-primary">কুইজ খেলুন →</a>
-      <button id="btn-unsub" onclick="unsubscribe()" class="btn btn-outline btn-error">আনসাবস্ক্রাইব করুন</button>
       <a href="/logout.php" class="btn btn-ghost">লগআউট</a>
       <p id="err" class="text-error text-sm hidden"></p>
     </div>
@@ -90,33 +89,6 @@ include __DIR__ . '/partials/navbar.php';
         box.innerHTML = '<span class="badge badge-warning">নিষ্ক্রিয় (Unsubscribed)</span>';
       } else {
         box.innerHTML = '<span class="badge badge-ghost">স্ট্যাটাস জানা যায়নি</span>';
-      }
-    } catch (e) {
-      $('err').textContent = 'নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।';
-      $('err').classList.remove('hidden');
-    } finally {
-      setLoading(btn, false);
-    }
-  }
-
-  async function unsubscribe() {
-    if (!confirm('আপনি কি নিশ্চিতভাবে আনসাবস্ক্রাইব করতে চান? এটি করলে আপনি লগআউট হয়ে যাবেন।')) return;
-    const btn = $('btn-unsub');
-    $('err').classList.add('hidden');
-    setLoading(btn, true, 'অপেক্ষা করুন...');
-    try {
-      const res = await fetch('bdapps/unsubscribe.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ user_mobile: PHONE }),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (data.success) {
-        // Guideline #6: on unsubscribe, auto log out + redirect to login.
-        window.location.href = '/logout.php';
-      } else {
-        $('err').textContent = data.error || 'আনসাবস্ক্রাইব ব্যর্থ হয়েছে। আবার চেষ্টা করুন।';
-        $('err').classList.remove('hidden');
       }
     } catch (e) {
       $('err').textContent = 'নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।';

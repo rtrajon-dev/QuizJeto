@@ -4,6 +4,7 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 $navLoggedIn = !empty($_SESSION['phone']);
 $navDisplay  = $_SESSION['display'] ?? '';
+$navPhone    = $_SESSION['phone'] ?? '';
 ?>
 <!-- Sticky top navbar -->
 <div class="navbar bg-base-100/80 backdrop-blur sticky top-0 z-50 border-b border-base-content/10 px-4 lg:px-12">
@@ -49,6 +50,7 @@ $navDisplay  = $_SESSION['display'] ?? '';
         <ul tabindex="0" class="menu menu-sm dropdown-content bg-base-200 rounded-box z-[1] mt-3 w-52 p-2 shadow">
           <li><a href="/quiz.php">🎮 কুইজ খেলুন</a></li>
           <li><a href="/account.php">⚙️ আমার অ্যাকাউন্ট</a></li>
+          <li><button type="button" onclick="navUnsubscribe(this)" class="text-error">🔕 আনসাবস্ক্রাইব</button></li>
           <li><a href="/logout.php" class="text-error">🚪 লগআউট</a></li>
         </ul>
       </div>
@@ -71,4 +73,31 @@ $navDisplay  = $_SESSION['display'] ?? '';
       localStorage.setItem('tb-theme', theme);
     });
   })();
+
+  // Unsubscribe from the header (available on every page while logged in)
+  async function navUnsubscribe(btn) {
+    if (!confirm('আপনি কি নিশ্চিতভাবে আনসাবস্ক্রাইব করতে চান? এটি করলে আপনি লগআউট হয়ে যাবেন।')) return;
+    var label = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> অপেক্ষা করুন...';
+    try {
+      const res = await fetch('/bdapps/unsubscribe.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams({ user_mobile: '<?= htmlspecialchars($navPhone, ENT_QUOTES, "UTF-8") ?>' }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (data.success || data.status === 'unsubscribed') {
+        window.location.href = '/logout.php';
+      } else {
+        alert(data.error || data.message || 'আনসাবস্ক্রাইব করা যায়নি। আবার চেষ্টা করুন।');
+        btn.disabled = false;
+        btn.innerHTML = label;
+      }
+    } catch (e) {
+      alert('নেটওয়ার্ক সমস্যা। আবার চেষ্টা করুন।');
+      btn.disabled = false;
+      btn.innerHTML = label;
+    }
+  }
 </script>
