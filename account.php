@@ -56,6 +56,8 @@ include __DIR__ . '/partials/navbar.php';
   <div class="card bg-base-200 border border-base-content/10 shadow-sm">
     <div class="card-body gap-3">
       <a href="/quiz.php" class="btn btn-primary">কুইজ খেলুন →</a>
+      <!-- Unsubscribe: shown here on phone & tablet (on laptop it lives in the navbar) -->
+      <button type="button" onclick="navUnsubscribe(this)" class="btn btn-ghost text-error lg:hidden">আনসাবস্ক্রাইব</button>
       <a href="/logout.php" class="btn btn-ghost">লগআউট</a>
       <p id="err" class="text-error text-sm hidden"></p>
     </div>
