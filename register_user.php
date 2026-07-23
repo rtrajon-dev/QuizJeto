@@ -48,6 +48,15 @@ try {
     if ($uid) {
         $_SESSION['user_id'] = $uid;
     }
+
+    // Carry the masked subscriberId into the session if we already have one —
+    // check_subscription/unsubscribe need it and can't rebuild it from digits.
+    if (empty($_SESSION['subscriber_id'])) {
+        $sid = get_subscriber_id(db(), $phone);
+        if ($sid !== null) {
+            $_SESSION['subscriber_id'] = $sid;
+        }
+    }
 } catch (Throwable $e) {
     // ignore — session login still succeeds
 }

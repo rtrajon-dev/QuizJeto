@@ -58,23 +58,38 @@ function callBdapps(string $url, array $requestData): array {
     return ['ok' => true, 'data' => $response, 'raw' => $responseJson];
 }
 
-$rawMobile = trim($_POST['user_mobile'] ?? $_POST['subscriberId'] ?? '');
-if ($rawMobile === '') {
-    echo json_encode(['error' => 'Mobile number required']);
+require_once __DIR__ . '/../db.php';
+
+// The number comes from the session, never from the request — otherwise anyone
+// could unsubscribe any number.
+$phone = $_SESSION['phone'] ?? '';
+if ($phone === '') {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Not logged in']);
     exit;
 }
 
-$digits = preg_replace('/\D+/', '', $rawMobile);
-if (strlen($digits) === 13 && substr($digits, 0, 2) === '88') {
-    $digits = substr($digits, 2);
+// subscription/send takes the masked subscriberId (from otp/verify), not tel:88...
+$subscriberId = $_SESSION['subscriber_id'] ?? '';
+if ($subscriberId === '') {
+    try {
+        $subscriberId = get_subscriber_id(db(), $phone) ?? '';
+    } catch (Throwable $e) {
+        $subscriberId = '';
+    }
+    if ($subscriberId !== '') {
+        $_SESSION['subscriber_id'] = $subscriberId;
+    }
 }
 
-if (strlen($digits) !== 11 || $digits[0] !== '0') {
-    echo json_encode(['error' => 'Invalid mobile format']);
+if ($subscriberId === '') {
+    echo json_encode([
+        'success' => false,
+        'error' => 'No subscriberId on file. Please verify your number again, or send STOP quizjeeto to 21213.',
+    ]);
     exit;
 }
 
-$subscriberId = 'tel:88' . $digits;
 $config = require __DIR__ . '/../config.php';
 $appId = $config['bdapps']['app_id'];
 $password = $config['bdapps']['password'];
@@ -93,7 +108,6 @@ if (!$result['ok']) {
     echo json_encode([
         'success' => false,
         'error' => $result['error'],
-        'subscriberId' => $subscriberId,
         'action' => '0',
     ]);
     exit;
@@ -109,7 +123,6 @@ $success =
 
 echo json_encode([
     'success' => $success,
-    'subscriberId' => $subscriberId,
     'action' => '0',
     'version' => '1.0',
     'statusCode' => $response['statusCode'] ?? null,

@@ -11,6 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 }
 header('Content-Type: application/json; charset=utf-8');
 
+// Ensure sessions persist on shared hosting (cPanel)
+if (php_sapi_name() !== 'cli') {
+    ini_set('session.save_path', __DIR__ . '/../sessions');
+    if (!is_dir(__DIR__ . '/../sessions')) {
+        @mkdir(__DIR__ . '/../sessions', 0755, true);
+    }
+}
+session_start();
+
 $rawMobile = $_POST['user_mobile'] ?? '';
 $digits = preg_replace('/\D+/', '', $rawMobile);
 
@@ -31,8 +40,14 @@ if (!preg_match('/^01[3-9][0-9]{8}$/', $digits)) {
     exit;
 }
 
-// bdapps subscriberId format
+// otp/request is the ONE call that takes the plain number — bdapps needs a real
+// MSISDN to send the OTP SMS to. Everything after verification uses the masked
+// subscriberId instead.
 $user_mobile = 'tel:88' . $digits;
+
+// verify_otp.php only receives the OTP + referenceNo, so remember whose number
+// this is — that's how the masked subscriberId gets keyed to the right user.
+$_SESSION['pending_phone'] = $digits;
 
 // Debug log
 file_put_contents('user_number.txt', $user_mobile . PHP_EOL, FILE_APPEND);

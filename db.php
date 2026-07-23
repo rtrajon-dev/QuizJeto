@@ -68,6 +68,51 @@ function upsert_user(PDO $pdo, string $phone, string $display = ''): ?int
 }
 
 /**
+ * Look up the bdapps masked subscriberId stored for a number.
+ *
+ * bdapps only ever hands us this value once — in the otp/verify response — and
+ * every later call (getStatus, subscription/send) must use it instead of the
+ * plain tel:88... number.
+ *
+ * @return string|null The masked subscriberId, or null if we've never stored one
+ */
+function get_subscriber_id(PDO $pdo, string $phone): ?string
+{
+    if (!preg_match('/^01[3-9]\d{8}$/', $phone)) {
+        return null;
+    }
+
+    $sel = $pdo->prepare('SELECT subscriber_id FROM users WHERE phone_hash = ?');
+    $sel->execute([hash('sha256', $phone)]);
+    $sid = $sel->fetchColumn();
+
+    return ($sid === false || $sid === null || $sid === '') ? null : (string) $sid;
+}
+
+/**
+ * Persist the masked subscriberId bdapps returned for a number, creating the
+ * user row if this is their first verification.
+ *
+ * @return bool True if it was stored
+ */
+function save_subscriber_id(PDO $pdo, string $phone, string $subscriberId): bool
+{
+    if (trim($subscriberId) === '') {
+        return false;
+    }
+
+    $uid = upsert_user($pdo, $phone);
+    if ($uid === null) {
+        return false;
+    }
+
+    $upd = $pdo->prepare('UPDATE users SET subscriber_id = ? WHERE id = ?');
+    $upd->execute([trim($subscriberId), $uid]);
+
+    return true;
+}
+
+/**
  * Convert ASCII digits in a string/number to Bengali numerals (০১২৩...).
  */
 function bn($value)

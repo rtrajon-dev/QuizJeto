@@ -91,12 +91,30 @@ if ($response === null) {
     exit;
 }
 
+// This response is the ONLY place bdapps gives us the masked subscriberId, and
+// every later call (getStatus, subscription/send) must use it instead of the
+// plain tel:88... number. Keep it in the session for this visit and persist it
+// so the user can log in again later.
+$maskedSubscriberId = isset($response['subscriberId']) ? trim((string) $response['subscriberId']) : '';
+if ($maskedSubscriberId !== '') {
+    $_SESSION['subscriber_id'] = $maskedSubscriberId;
+
+    $pendingPhone = $_SESSION['pending_phone'] ?? '';
+    if ($pendingPhone !== '') {
+        try {
+            require_once __DIR__ . '/../db.php';
+            save_subscriber_id(db(), $pendingPhone, $maskedSubscriberId);
+        } catch (Throwable $e) {
+            // Session still has it — don't fail verification over a DB write.
+        }
+    }
+}
+
 // Return the response from BDApps
 echo json_encode(array(
     'statusCode' => isset($response['statusCode']) ? $response['statusCode'] : 'FAILED',
     'statusDetail' => isset($response['statusDetail']) ? $response['statusDetail'] : '',
     'subscriptionStatus' => isset($response['subscriptionStatus']) ? $response['subscriptionStatus'] : '',
-    'subscriberId' => isset($response['subscriberId']) ? $response['subscriberId'] : '',
     'version' => isset($response['version']) ? $response['version'] : ''
 ));
 

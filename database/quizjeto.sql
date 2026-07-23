@@ -9,6 +9,10 @@
 --     INSERT INTO questions (category_id, question, option_a, option_b, option_c, option_d, correct_option, difficulty)
 --     VALUES (4,'প্রশ্ন?','ক','খ','গ','ঘ','a','easy');
 --   Hide (not delete) a question or category: set is_active = 0.
+--
+-- ALREADY IMPORTED an earlier version? Don't re-import (it drops your data) —
+-- just add the new column:
+--   ALTER TABLE users ADD COLUMN subscriber_id VARCHAR(255) NULL AFTER phone_masked;
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -48,6 +52,10 @@ CREATE TABLE users (
     id           INT AUTO_INCREMENT PRIMARY KEY,
     phone_hash   CHAR(64) NOT NULL UNIQUE,
     phone_masked VARCHAR(32) NOT NULL,
+    -- Masked subscriberId returned by bdapps otp/verify. Every bdapps call
+    -- after subscription (getStatus, subscription/send) must use this, not the
+    -- plain tel:88... number. NULL until the user completes an OTP verify.
+    subscriber_id VARCHAR(255) NULL,
     display_name VARCHAR(64) NULL,
     created_at   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

@@ -19,27 +19,37 @@ if (php_sapi_name() !== 'cli') {
 }
 session_start();
 
-$rawMobile = $_POST['user_mobile'] ?? '';
-$digits = preg_replace('/\D+/', '', $rawMobile);
+require_once __DIR__ . '/../db.php';
 
-// Accept 018xxxxxxxx, 88018xxxxxxxx, or 8818xxxxxxxx and normalize to 018xxxxxxxx
-if (strpos($digits, '880') === 0 && strlen($digits) === 13) {
-    $digits = '0' . substr($digits, 3);
-} elseif (strpos($digits, '88') === 0 && strlen($digits) === 12) {
-    $digits = '0' . substr($digits, 2);
-}
-
-// Validate Bangladesh mobile number
-if (!preg_match('/^01[3-9][0-9]{8}$/', $digits)) {
-    echo json_encode([
-        'error' => 'Invalid mobile number format',
-        'providedNumber' => $rawMobile
-    ]);
+// The number comes from the session, never from the request — otherwise anyone
+// could check the status of any number.
+$phone = $_SESSION['phone'] ?? '';
+if ($phone === '') {
+    http_response_code(401);
+    echo json_encode(['error' => 'Not logged in']);
     exit;
 }
 
-// bdapps subscriberId format
-$subscriberId = 'tel:88' . $digits;
+// getStatus takes the masked subscriberId (from otp/verify), not tel:88...
+$subscriberId = $_SESSION['subscriber_id'] ?? '';
+if ($subscriberId === '') {
+    try {
+        $subscriberId = get_subscriber_id(db(), $phone) ?? '';
+    } catch (Throwable $e) {
+        $subscriberId = '';
+    }
+    if ($subscriberId !== '') {
+        $_SESSION['subscriber_id'] = $subscriberId;
+    }
+}
+
+if ($subscriberId === '') {
+    echo json_encode([
+        'error' => 'No subscriberId on file',
+        'statusDetail' => 'Please verify your number again to refresh your subscription.',
+    ]);
+    exit;
+}
 
 $config = require __DIR__ . '/../config.php';
 $requestData = [
@@ -93,6 +103,5 @@ echo json_encode([
     'statusCode' => $response['statusCode'] ?? null,
     'statusDetail' => $response['statusDetail'] ?? null,
     'version' => $response['version'] ?? null,
-    'subscriberId' => $subscriberId
 ]);
 ?>

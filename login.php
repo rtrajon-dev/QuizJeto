@@ -14,6 +14,7 @@
  */
 
 header('Content-Type: application/json');
+require_once __DIR__ . '/db.php';
 session_start();
 
 $digits = preg_replace('/\D+/', '', $_POST['user_mobile'] ?? '');
@@ -29,7 +30,27 @@ if (!preg_match('/^01[3-9][0-9]{8}$/', $digits)) {
     exit;
 }
 
-$subscriberId = 'tel:88' . $digits;
+// getStatus takes the masked subscriberId bdapps returned at otp/verify, which
+// can't be derived from a typed number — it has to be looked up by phone hash.
+try {
+    $subscriberId = get_subscriber_id(db(), $digits) ?? '';
+} catch (Throwable $e) {
+    $subscriberId = '';
+}
+
+if ($subscriberId === '') {
+    // Never verified on this install (or a pre-masking user). We can't ask
+    // bdapps about them, so hand the caller to the OTP flow — for a number
+    // that's already subscribed bdapps answers E1351 "already registered",
+    // which index.php treats as a login.
+    echo json_encode([
+        'ok'                 => true,
+        'subscribed'         => false,
+        'subscriptionStatus' => '',
+    ]);
+    exit;
+}
+
 $config = require __DIR__ . '/config.php';
 
 $requestData = [
@@ -72,7 +93,8 @@ $isSubscribed = ($status === 'REGISTERED');
 
 if ($isSubscribed) {
     // Log in — session only, no DB (same as register_user.php).
-    $_SESSION['phone']        = $digits;
+    $_SESSION['phone']         = $digits;
+    $_SESSION['subscriber_id'] = $subscriberId;
     $_SESSION['display_name'] = $_SESSION['display_name'] ?? '';
     $_SESSION['display']      = $_SESSION['display']
         ?? (substr($digits, 0, 3) . '•••' . substr($digits, -3));
